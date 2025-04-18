@@ -34,3 +34,21 @@ const varData = [
   { loss: "-100", probability: 0.2 },
   { loss: "0", probability: 0.1 }
 ];
+
+export default function Dashboard() {
+    const [selectedStock, setSelectedStock] = useState("");
+    const [showResults, setShowResults] = useState(false);
+    
+    // Simple function to handle stock selection
+    const handleSelectChange = (e) => {
+      setSelectedStock(e.target.value);
+    };
+    
+    // Function to analyze risk when button is clicked
+    const analyzeRisk = () => {
+      if (selectedStock) {
+        setShowResults(true);
+      } else {
+        alert("Please select a stock first");
+      }
+    };
