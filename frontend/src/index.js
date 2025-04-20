@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import './styles/tailwind.css';  // Add this line
+import './styles/auth.css';      // Keep your auth style
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
