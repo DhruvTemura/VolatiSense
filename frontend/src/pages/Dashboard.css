@@ -1,0 +1,65 @@
+/* Dashboard.css */
+.dashboard-container {
+    min-height: 100vh;
+    background-color: #f9fafb;
+    padding: 1.5rem;
+  }
+  
+  .main-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  .subtitle {
+    margin-bottom: 1.5rem;
+    color: #4b5563;
+  }
+  
+  .card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+  }
+  
+  .flex-container {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .select-input {
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    width: 16rem;
+  }
+  
+  .primary-button {
+    background-color: #2563eb;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .primary-button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .header-with-badge {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  
