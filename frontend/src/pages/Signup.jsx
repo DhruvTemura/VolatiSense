@@ -111,5 +111,63 @@ export default function Signup() {
                 />
                 {errors.email && <span className="error-text">{errors.email}</span>}
               </div>
-              
+              <div className="form-group">
+            <label htmlFor="email" className="form-label">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              className="form-input"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+            />
+            {errors.email && <span className="error-text">{errors.email}</span>}
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              className="form-input"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Create a password"
+            />
+            {errors.password && <span className="error-text">{errors.password}</span>}
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              className="form-input"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm your password"
+            />
+            {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
+          </div>
+          
+          <button type="submit" className="auth-button">
+            Sign Up
+          </button>
+        </form>
+        
+        <div className="auth-footer">
+          <p>
+            Already have an account?{" "}
+            <Link to="/login" className="auth-link">
+              Login
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
     
