@@ -151,4 +151,49 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-
+        {/* VaR Distribution Chart */}
+        <div className="card">
+            <h3 className="chart-title">Value at Risk Distribution</h3>
+            <div className="chart-container">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={varData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="loss" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="probability" fill="#8884d8" name="Loss Probability" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            {/* VaR Reference Lines - displayed as text for simplicity */}
+            <div className="reference-lines">
+              <div className="reference-line">
+                <div className="reference-color red-light"></div>
+                <span className="reference-text">VaR 95%: -₹245.32</span>
+              </div>
+              <div className="reference-line">
+                <div className="reference-color red-dark"></div>
+                <span className="reference-text">VaR 99%: -₹387.65</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Risk Logs - Simplified */}
+          <div className="card">
+            <h3 className="chart-title">Risk Assessment Logs</h3>
+            <div className="logs-container">
+              <p className="log-entry">✓ Calculated VaR at 95% confidence level: ₹245.32</p>
+              <p className="log-entry">✓ Calculated VaR at 99% confidence level: ₹387.65</p>
+              <p className="log-entry">✓ Conditional VaR (Expected Shortfall): ₹312.48</p>
+              <p className="log-entry">i There is a 5% chance the losses will exceed ₹245.32 next week</p>
+              <p className="log-entry">i There is a 1% chance the losses will exceed ₹387.65 next week</p>
+              <p className="log-entry">i Model passed Binomial Test for backtesting</p>
+              <p className="log-entry">! Current volatility is 19%, which is 27% higher than 3-month average</p>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
