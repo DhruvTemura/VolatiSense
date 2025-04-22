@@ -54,3 +54,57 @@ export default function Login() {
       }
     }
   };
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1 className="auth-title">Login to Your Account</h1>
+        <p className="auth-subtitle">Enter your credentials to access the dashboard</p>
+        
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {errors.form && <div className="error-message">{errors.form}</div>}
+          
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              className="form-input"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+            />
+            {errors.email && <span className="error-text">{errors.email}</span>}
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              className="form-input"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+            />
+            {errors.password && <span className="error-text">{errors.password}</span>}
+          </div>
+          
+          <button type="submit" className="auth-button">
+            Login
+          </button>
+        </form>
+        
+        <div className="auth-footer">
+          <p>
+            Don't have an account?{" "}
+            <Link to="/signup" className="auth-link">
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
