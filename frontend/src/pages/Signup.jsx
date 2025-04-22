@@ -61,4 +61,55 @@ export default function Signup() {
         setErrors({ email: "Email already in use" });
         return;
       }
-      
+        // Add new user
+        const newUser = {
+            id: Date.now(),
+            name: formData.name,
+            email: formData.email,
+            password: formData.password // In a real app, this should be hashed
+          };
+          
+          users.push(newUser);
+          localStorage.setItem("users", JSON.stringify(users));
+          
+          // Navigate to login page
+          navigate("/login");
+        }
+      };
+    
+      return (
+        <div className="auth-container">
+          <div className="auth-card">
+            <h1 className="auth-title">Create an Account</h1>
+            <p className="auth-subtitle">Sign up to access the risk analysis dashboard</p>
+            
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="name" className="form-label">Full Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  className="form-input"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter your full name"
+                />
+                {errors.name && <span className="error-text">{errors.name}</span>}
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="email" className="form-label">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  className="form-input"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                />
+                {errors.email && <span className="error-text">{errors.email}</span>}
+              </div>
+              
+    
