@@ -1,20 +1,32 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-// This component protects routes from unauthenticated users
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const isAuthenticated = () => {
-    // Check if user is logged in by looking for currentUser in localStorage
-    const user = localStorage.getItem('currentUser');
-    return !!user;
+    const userString = localStorage.getItem('currentUser');
+    return !!userString;
+  };
+  
+  const isAdmin = () => {
+    try {
+      const userString = localStorage.getItem('currentUser');
+      if (!userString) return false;
+      
+      const user = JSON.parse(userString);
+      return user.role === 'admin';
+    } catch (error) {
+      return false;
+    }
   };
 
   if (!isAuthenticated()) {
-    // Redirect to login if not authenticated
     return <Navigate to="/login" />;
   }
+  
+  if (requireAdmin && !isAdmin()) {
+    return <Navigate to="/dashboard" />;
+  }
 
-  // Render the protected component if authenticated
   return children;
 };
 
