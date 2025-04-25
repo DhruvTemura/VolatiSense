@@ -1,0 +1,183 @@
+/* Admin Dashboard Styles */
+.admin-dashboard {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .admin-header {
+    background-color: #1a2747;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .logout-btn {
+    background-color: #3a4f7a;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .logout-btn:hover {
+    background-color: #2c3e50;
+  }
+  
+  .admin-content {
+    display: flex;
+    flex: 1;
+  }
+  
+  .sidebar {
+    width: 250px;
+    background-color: #f5f7fa;
+    padding: 2rem 1rem;
+    box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar h3 {
+    margin-top: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+  }
+  
+  .sidebar li {
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .sidebar li:hover {
+    background-color: #e9ecef;
+  }
+  
+  .sidebar li.active {
+    background-color: #3a4f7a;
+    color: white;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 2rem;
+    background-color: #f8f9fa;
+  }
+  
+  .model-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .model-card h2 {
+    margin-top: 0;
+    color: #1a2747;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.75rem;
+  }
+  
+  .model-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .model-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .update-btn, .view-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .update-btn {
+    background-color: #2e77d0;
+    color: white;
+  }
+  
+  .update-btn:hover {
+    background-color: #1a5cb7;
+  }
+  
+  .update-btn.updating {
+    background-color: #8ab4f8;
+    cursor: not-allowed;
+  }
+  
+  .view-btn {
+    background-color: #f0f2f5;
+    color: #3a4f7a;
+    border: 1px solid #d0d7e3;
+  }
+  
+  .view-btn:hover {
+    background-color: #e6e9ee;
+  }
+  
+  .model-history {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .model-history h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #1a2747;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  th {
+    background-color: #f5f7fa;
+    font-weight: 600;
+    color: #4a5568;
+  }
+  
+  tbody tr:hover {
+    background-color: #f9fafb;
+  }

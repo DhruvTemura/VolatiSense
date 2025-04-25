@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminDashboard from './admin/AdminDashboard';
 
 function App() {
   return (
@@ -21,6 +22,14 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+        path="/admin/dashboard" 
+        element={
+          <ProtectedRoute requireAdmin={true}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } 
+      />
         {/* Add a catch-all route that redirects to the landing page */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
