@@ -11,14 +11,26 @@ const AdminDashboard = () => {
 
   const updateModel = () => {
     setIsUpdating(true);
-    
-    // Simulate an API call to update the model
-    setTimeout(() => {
+  
+    fetch('http://localhost:5000/api/update-model', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
       setIsUpdating(false);
       setLastUpdate(new Date().toLocaleString());
-      alert('Model updated successfully with latest stock data!');
-    }, 2000);
+      alert(data.message || 'Model updated successfully!');
+    })
+    .catch(err => {
+      setIsUpdating(false);
+      console.error('Error updating model:', err);
+      alert('Update failed. Check backend logs.');
+    });
   };
+  
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
