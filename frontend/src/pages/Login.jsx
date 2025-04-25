@@ -39,14 +39,26 @@ export default function Login() {
     e.preventDefault();
     
     if (validateForm()) {
-      // For demo purposes, we'll simulate a successful login
-      // In a real app, you would validate against your backend
+      if (formData.email === "admin@volatisense.com" && formData.password === "admin123") {
+        const adminUser = {
+          email: formData.email,
+          name: "Admin",
+          role: "admin"
+        };
+        localStorage.setItem("currentUser", JSON.stringify(adminUser));
+        navigate("/admin/dashboard");
+        return;
+      }
+      
       const users = JSON.parse(localStorage.getItem("users") || "[]");
       const user = users.find(
         (u) => u.email === formData.email && u.password === formData.password
       );
       
       if (user) {
+        if (!user.role) {
+          user.role = "user";
+        }
         localStorage.setItem("currentUser", JSON.stringify(user));
         navigate("/dashboard");
       } else {
@@ -54,6 +66,7 @@ export default function Login() {
       }
     }
   };
+  
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -105,6 +118,6 @@ export default function Login() {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>
+  );
 }
