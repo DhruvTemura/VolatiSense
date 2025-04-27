@@ -274,3 +274,52 @@
 .red-dark {
   background-color: #b91c1c;
 }
+
+/* Add these to your Dashboard.css file */
+
+.loading-message {
+  text-align: center;
+  padding: 1rem;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.error-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-left: 4px solid #ef4444;
+}
+
+.error {
+  color: #ef4444;
+  margin-bottom: 1rem;
+}
+
+.risk-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.risk-badge.high {
+  background-color: #fecaca;
+  color: #b91c1c;
+}
+
+.risk-badge.medium {
+  background-color: #fed7aa;
+  color: #c2410c;
+}
+
+.risk-badge.low {
+  background-color: #bbf7d0;
+  color: #15803d;
+}

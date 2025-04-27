@@ -3,11 +3,14 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const { spawn } = require('child_process');
+const modelRoutes = require("./routes/modelRoutes");
 const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/api/models", modelRoutes);
+
 
 // 1) Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/market_risk_assessment', {

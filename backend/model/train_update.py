@@ -4,8 +4,10 @@ import numpy as np
 import xgboost as xgb
 import os
 import pickle
+import pymongo
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
 from datetime import datetime
 import warnings
 import argparse
@@ -74,6 +76,106 @@ def label_risk(data):
     data['Risk'] = np.select(conditions, choices)
     return data
 
+
+# Fixed function to save model statistics to MongoDB
+def save_model_stats(ticker, model, X_test, y_test, start_date):
+    print(f"[INFO] Saving model stats for {ticker} to MongoDB")
+    
+    # Connect to MongoDB
+    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    db = client["market_risk_assessment"]
+    stats_collection = db["model_stats"]
+    
+    # Calculate accuracy
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred) * 100
+    
+    # Get recent data for charts (last year)
+    end_date = datetime.today().strftime('%Y-%m-%d')
+    chart_start = (datetime.today().replace(year=datetime.today().year-1)).strftime('%Y-%m-%d')
+    
+    try:
+        data = fetch_stock_data(ticker, chart_start, end_date)
+        
+        # Calculate returns for risk metrics
+        returns = data['Close'].pct_change().dropna()
+        
+        # Calculate VaR metrics (negative values represent losses)
+        var95 = returns.quantile(0.05) * data['Close'].iloc[-1]
+        var99 = returns.quantile(0.01) * data['Close'].iloc[-1]
+        
+        # Conditional VaR (Expected Shortfall)
+        cvar = returns[returns <= returns.quantile(0.05)].mean() * data['Close'].iloc[-1]
+        
+        # Create price history for chart (last 30 days)
+        price_history = []
+        for idx, row in data.iloc[-30:].iterrows():
+            # Fix: Convert datetime index to string properly
+            price_history.append({
+                "date": idx.strftime('%Y-%m-%d'),
+                "price": float(row['Close'])
+            })
+        
+        # Calculate rolling volatility
+        volatility = returns.rolling(window=30).std().dropna()
+        volatility_data = []
+        for idx, vol in volatility.iloc[-30:].items():
+            # Fix: Convert datetime index to string properly
+            volatility_data.append({
+                "date": idx.strftime('%Y-%m-%d'),
+                "volatility": float(vol)
+            })
+        
+        # Create VaR distribution data
+        var_data = []
+        # Create 20 equally spaced loss points from 0 to 2*VAR99
+        loss_range = np.linspace(0, abs(var99) * 2, 20)
+        for loss in loss_range:
+            var_data.append({
+                "loss": f"{loss*100:.1f}%",
+                "probability": float((returns <= -loss).mean())
+            })
+        
+        # Determine risk level based on 5% VaR
+        if var95 < -0.03:  # More than 3% loss at 95% confidence
+            risk_level = "High"
+        elif var95 < -0.015:  # Between 1.5% and 3% loss
+            risk_level = "Medium"
+        else:  # Less than 1.5% loss
+            risk_level = "Low"
+        
+        # Create model stats document
+        model_stats = {
+            "ticker": ticker,
+            "var95": abs(float(var95 * data['Close'].iloc[-1])),  # Convert to absolute rupee amount
+            "var99": abs(float(var99 * data['Close'].iloc[-1])),
+            "cvar": abs(float(cvar * data['Close'].iloc[-1])),
+            "riskLevel": risk_level,
+            "accuracy": float(accuracy),
+            "priceHistory": price_history,
+            "volatilityData": volatility_data,
+            "varData": var_data,
+            "updatedAt": datetime.now()
+        }
+        
+        # Update or insert model stats
+        result = stats_collection.update_one(
+            {"ticker": ticker},
+            {"$set": model_stats},
+            upsert=True
+        )
+        
+        if result.modified_count > 0:
+            print(f"[INFO] Updated existing stats for {ticker}")
+        elif result.upserted_id:
+            print(f"[INFO] Created new stats for {ticker}")
+        else:
+            print(f"[INFO] No changes to stats for {ticker}")
+            
+    except Exception as e:
+        print(f"[ERROR] Failed to save stats for {ticker}: {e}")
+
+
 # Training Functions
 def train_baseline_model(start, end):
     print(f"[INFO] Training baseline model on ^BSESN from {start} to {end}")
@@ -106,6 +208,10 @@ def train_baseline_model(start, end):
         pickle.dump(scaler, f)
 
     print(f"[INFO] Baseline artifacts saved to {baseline_dir}")
+    
+    # Save model stats to MongoDB
+    save_model_stats('^BSESN', model, X_test, y_test, start)
+    
     return model, scaler
 
 
@@ -145,6 +251,12 @@ def train_company_model(ticker, baseline_model, scaler, start, end):
         pickle.dump(scaler, f)
 
     print(f"[INFO] Artifacts for {ticker} saved to {company_dir}")
+    
+    # Save model stats to MongoDB
+    save_model_stats(ticker, model, X_test, y_test, start)
+    
+    return model
+
 
 # Main Execution
 def main(tickers, start, end):

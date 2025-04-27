@@ -1,158 +1,223 @@
-import React, { useState } from "react";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import React, { useState, useEffect } from "react";
+import {
+  LineChart, Line,
+  BarChart, Bar,
+  XAxis, YAxis,
+  CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer
+} from "recharts";
 import { Link } from "react-router-dom";
 import "./Dashboard.css";
-
-// Sample data
-const stockOptions = [
-  { value: "TCS", label: "Tata Consultancy Services" },
-  { value: "INFY", label: "Infosys Ltd." },
-  { value: "RELIANCE", label: "Reliance Industries Ltd." },
-  { value: "HDFCBANK", label: "HDFC Bank Ltd." },
-  { value: "WIPRO", label: "Wipro Ltd." }
-];
-
-const priceHistory = [
-  { date: "Jun", price: 2550 },
-  { date: "Jul", price: 2690 },
-  { date: "Aug", price: 2810 },
-  { date: "Sep", price: 2750 },
-  { date: "Oct", price: 2880 }
-];
-
-const volatilityData = [
-  { date: "Jun", volatility: 12 },
-  { date: "Jul", volatility: 18 },
-  { date: "Aug", volatility: 15 },
-  { date: "Sep", volatility: 22 },
-  { date: "Oct", volatility: 19 }
-];
-
-const varData = [
-  { loss: "-500", probability: 0.1 },
-  { loss: "-400", probability: 0.15 },
-  { loss: "-300", probability: 0.2 },
-  { loss: "-200", probability: 0.25 },
-  { loss: "-100", probability: 0.2 },
-  { loss: "0", probability: 0.1 }
-];
 
 export default function Dashboard() {
   const [selectedStock, setSelectedStock] = useState("");
   const [showResults, setShowResults] = useState(false);
-  
-  // Simple function to handle stock selection
-  const handleSelectChange = (e) => {
-    setSelectedStock(e.target.value);
-  };
-  
-  // Function to analyze risk when button is clicked
-  const analyzeRisk = () => {
-    if (selectedStock) {
-      setShowResults(true);
-    } else {
-      alert("Please select a stock first");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Dynamic data states
+  const [priceHistory, setPriceHistory] = useState([]);
+  const [volatilityData, setVolatilityData] = useState([]);
+  const [varData, setVarData] = useState([]);
+  const [modelStats, setModelStats] = useState({});
+
+  // Destructure stats with defaults
+  const {
+    var95 = '—',
+    var99 = '—',
+    cvar = '—',
+    riskLevel = '—',
+    accuracy = null
+  } = modelStats;
+
+  const stockOptions = [
+    { value: "RELIANCE.NS",    label: "Reliance Industries Ltd." },
+    { value: "TCS.NS",         label: "Tata Consultancy Services Ltd." },
+    { value: "HDFCBANK.NS",    label: "HDFC Bank Ltd." },
+    { value: "INFY.NS",        label: "Infosys Ltd." },
+    { value: "HINDUNILVR.NS",  label: "Hindustan Unilever Ltd." },
+    { value: "BHARTIARTL.NS",  label: "Bharti Airtel Ltd." },
+    { value: "KOTAKBANK.NS",   label: "Kotak Mahindra Bank Ltd." },
+    { value: "ITC.NS",         label: "ITC Ltd." },
+    { value: "AXISBANK.NS",    label: "Axis Bank Ltd." },
+    { value: "MARUTI.NS",      label: "Maruti Suzuki India Ltd." },
+    { value: "BAJFINANCE.NS",  label: "Bajaj Finance Ltd." },
+    { value: "BAJAJFINSV.NS",  label: "Bajaj Finserv Ltd." },
+    { value: "HCLTECH.NS",     label: "HCL Technologies Ltd." },
+    { value: "LUPIN.NS",       label: "Lupin Ltd." },
+    { value: "ULTRACEMCO.NS",  label: "UltraTech Cement Ltd." },
+    { value: "NTPC.NS",        label: "NTPC Ltd." },
+    { value: "WIPRO.NS",       label: "Wipro Ltd." },
+    { value: "M&M.NS",         label: "Mahindra & Mahindra Ltd." },
+    { value: "POWERGRID.NS",   label: "Power Grid Corp. of India Ltd." },
+    { value: "SBIN.NS",        label: "State Bank of India" },
+    { value: "ASIANPAINT.NS",  label: "Asian Paints Ltd." },
+    { value: "DRREDDY.NS",     label: "Dr. Reddy's Laboratories Ltd." },
+    { value: "BAJAJ-AUTO.NS",  label: "Bajaj Auto Ltd." },
+    { value: "SUNPHARMA.NS",   label: "Sun Pharmaceutical Industries Ltd." },
+    { value: "JSWSTEEL.NS",    label: "JSW Steel Ltd." },
+    { value: "TATAMOTORS.NS",  label: "Tata Motors Ltd." },
+    { value: "TITAN.NS",       label: "Titan Company Ltd." },
+    { value: "HDFCLIFE.NS",    label: "HDFC Life Insurance Co. Ltd." },
+    { value: "INDUSINDBK.NS",  label: "IndusInd Bank Ltd." },
+    { value: "DIVISLAB.NS",    label: "Divi's Laboratories Ltd." }
+  ];
+
+  // Function to generate model stats for all tickers
+  const generateAllStats = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/models/generate-all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate model stats');
+      }
+      
+      const result = await response.json();
+      console.log('Stats generation result:', result);
+      
+      // After generating stats, try analyzing again
+      if (selectedStock) {
+        setShowResults(true);
+      }
+    } catch (err) {
+      console.error('Error generating stats:', err);
+      setError('Could not generate model stats. Please try again or contact support.');
     }
   };
 
-  // Scroll to section function
-  const scrollToSection = (id) => {
-    document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+  // Fetch model data when user triggers analysis
+  useEffect(() => {
+    if (!showResults || !selectedStock) return;
+    setLoading(true);
+    setError(null);
+    
+    fetch(`http://localhost:5000/api/models/${selectedStock}`)
+      .then(res => {
+        if (!res.ok) {
+          if (res.status === 404) {
+            throw new Error(`No data available for ${selectedStock}. Try updating the model first.`);
+          }
+          throw new Error("Failed to load model data");
+        }
+        return res.json();
+      })
+      .then(data => {
+        setPriceHistory(data.priceHistory || []);
+        setVolatilityData(data.volatilityData || []);
+        setVarData(data.varData || []);
+        setModelStats({
+          var95: data.var95,
+          var99: data.var99,
+          cvar: data.cvar,
+          riskLevel: data.riskLevel,
+          accuracy: data.accuracy
+        });
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [showResults, selectedStock]);
+
+  const handleSelectChange = e => {
+    setSelectedStock(e.target.value);
+    setShowResults(false);
+  };
+
+  const analyzeRisk = () => {
+    if (!selectedStock) return alert("Please select a stock first");
+    setShowResults(true);
   };
 
   return (
     <div className="dashboard-main">
-      {/* Top Navigation Bar - Always visible */}
       <nav className="landing-nav">
-        <div className="logo">
-          <h1>VolatiSense</h1>
-        </div>
+        <div className="logo"><h1>VolatiSense</h1></div>
         <div className="nav-links">
           {showResults && (
-            <>
-              <a href="#" onClick={() => scrollToSection("risk-summary")}>Risk Summary</a>
-              <a href="#" onClick={() => scrollToSection("price-trend")}>Price Trend</a>
-              <a href="#" onClick={() => scrollToSection("var-distribution")}>VaR Distribution</a>
-              <a href="#" onClick={() => scrollToSection("risk-logs")}>Risk Logs</a>
+            <> {/* internal anchors preserved */}
+              <a href="#risk-summary" onClick={e => e.preventDefault()}>Risk Summary</a>
+              <a href="#price-trend" onClick={e => e.preventDefault()}>Price Trend</a>
+              <a href="#var-distribution" onClick={e => e.preventDefault()}>VaR Distribution</a>
+              <a href="#risk-logs" onClick={e => e.preventDefault()}>Risk Logs</a>
             </>
           )}
-          <div className="auth-links">
-            <Link to="/logout" className="btn-secondary">Logout</Link>
-          </div>
+          <Link to="/logout" className="btn-secondary">Logout</Link>
         </div>
       </nav>
 
       <div className="dashboard-container">
         <h1 className="main-title">Risk Analysis Dashboard</h1>
         <p className="subtitle">Analyze market risk metrics for Indian equities</p>
-        
-        {showResults && (
-          <div className="stock-header">
-            <h2 className="tcs-analysis">{selectedStock} Analysis</h2>
-          </div>
-        )}
-        
-        {/* Stock Selection */}
+
         <div className="card">
           <h2 className="section-title">Select Stock</h2>
           <div className="flex-container">
-            <select 
+            <select
               className="select-input"
               value={selectedStock}
               onChange={handleSelectChange}
             >
               <option value="">Select a stock...</option>
-              {stockOptions.map((stock) => (
+              {stockOptions.map(stock => (
                 <option key={stock.value} value={stock.value}>
                   {stock.value} - {stock.label}
                 </option>
               ))}
             </select>
-            <button 
-              className="primary-button"
-              onClick={analyzeRisk}
-            >
+            <button className="primary-button" onClick={analyzeRisk}>
               Analyze Risk
             </button>
           </div>
         </div>
+
+        {loading && <p className="loading-message">Loading data...</p>}
         
-        {/* Results Section - Only visible after analysis */}
-        {showResults && (
+        {error && (
+          <div className="error-card">
+            <p className="error">Error: {error}</p>
+            <button className="primary-button" onClick={generateAllStats}>
+              Generate Missing Data
+            </button>
+          </div>
+        )}
+
+        {showResults && !loading && !error && (
           <>
-            {/* Risk Summary */}
             <div id="risk-summary" className="card">
               <div className="header-with-badge">
-                <h2 className="section-title">
-                  {selectedStock} Risk Summary
-                </h2>
-                <span className="risk-badge">
-                  Moderate Risk
-                </span>
+                <h2 className="section-title">{selectedStock} Risk Summary</h2>
+                <span className={`risk-badge ${riskLevel.toLowerCase()}`}>{riskLevel}</span>
               </div>
-              
               <div className="metrics-grid">
                 <div className="metric-card">
                   <p className="metric-label">Value at Risk (95%)</p>
-                  <p className="metric-value">₹245.32</p>
-                  <p className="metric-description">5% chance of exceeding this loss</p>
+                  <p className="metric-value">₹{var95}</p>
                 </div>
                 <div className="metric-card">
                   <p className="metric-label">Value at Risk (99%)</p>
-                  <p className="metric-value">₹387.65</p>
-                  <p className="metric-description">1% chance of exceeding this loss</p>
+                  <p className="metric-value">₹{var99}</p>
                 </div>
                 <div className="metric-card">
                   <p className="metric-label">Expected Shortfall (CVaR)</p>
-                  <p className="metric-value">₹312.48</p>
-                  <p className="metric-description">Average loss beyond VaR</p>
+                  <p className="metric-value">₹{cvar}</p>
+                </div>
+                <div className="metric-card">
+                  <p className="metric-label">Model Accuracy</p>
+                  <p className="metric-value">
+                    {accuracy != null ? `${accuracy.toFixed(2)}%` : '—'}
+                  </p>
                 </div>
               </div>
             </div>
-            
-            {/* Charts - Using simple components */}
+
             <div className="charts-grid">
-              {/* Price History Chart */}
               <div id="price-trend" className="card">
                 <h3 className="chart-title">Historical Price Trend</h3>
                 <div className="chart-container">
@@ -167,8 +232,7 @@ export default function Dashboard() {
                   </ResponsiveContainer>
                 </div>
               </div>
-              
-              {/* Volatility Chart */}
+
               <div className="card">
                 <h3 className="chart-title">Rolling Volatility (30 Days)</h3>
                 <div className="chart-container">
@@ -184,8 +248,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            
-            {/* VaR Distribution Chart */}
+
             <div id="var-distribution" className="card">
               <h3 className="chart-title">Value at Risk Distribution</h3>
               <div className="chart-container">
@@ -196,34 +259,21 @@ export default function Dashboard() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="probability" fill="#8884d8" name="Loss Probability" />
+                    <Bar dataKey="probability" name="Loss Probability" fill="#8884d8" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              {/* VaR Reference Lines - displayed as text for simplicity */}
-              <div className="reference-lines">
-                <div className="reference-line">
-                  <div className="reference-color red-light"></div>
-                  <span className="reference-text">VaR 95%: -₹245.32</span>
-                </div>
-                <div className="reference-line">
-                  <div className="reference-color red-dark"></div>
-                  <span className="reference-text">VaR 99%: -₹387.65</span>
-                </div>
-              </div>
             </div>
-            
-            {/* Risk Logs - Simplified */}
+
             <div id="risk-logs" className="card">
               <h3 className="chart-title">Risk Assessment Logs</h3>
               <div className="logs-container">
-                <p className="log-entry">✓ Calculated VaR at 95% confidence level: ₹245.32</p>
-                <p className="log-entry">✓ Calculated VaR at 99% confidence level: ₹387.65</p>
-                <p className="log-entry">✓ Conditional VaR (Expected Shortfall): ₹312.48</p>
-                <p className="log-entry">i There is a 5% chance the losses will exceed ₹245.32 next week</p>
-                <p className="log-entry">i There is a 1% chance the losses will exceed ₹387.65 next week</p>
-                <p className="log-entry">i Model passed Binomial Test for backtesting</p>
-                <p className="log-entry">! Current volatility is 19%, which is 27% higher than 3-month average</p>
+                <p className="log-entry">
+                  Model Accuracy: {accuracy != null ? `${accuracy.toFixed(2)}%` : '—'}
+                </p>
+                <p className="log-entry">VaR95: ₹{var95}</p>
+                <p className="log-entry">VaR99: ₹{var99}</p>
+                <p className="log-entry">CVaR: ₹{cvar}</p>
               </div>
             </div>
           </>
