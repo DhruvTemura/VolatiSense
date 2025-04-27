@@ -1,0 +1,18 @@
+version: '3'
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: npm start
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    command: npm start
