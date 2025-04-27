@@ -29,7 +29,7 @@ app.post('/api/update-model', (req, res) => {
   console.log('Starting data fetch...');
 
   // Spawn Python process with unbuffered output (-u) for fetch
-  const fetchProc = spawn('python', ['-u', fetchScript], { shell: true });
+  const fetchProc = spawn('python', ['-u', fetchScript], { shell: true, cwd: __dirname });
   fetchProc.stdout.pipe(process.stdout);
   fetchProc.stderr.pipe(process.stderr);
 
@@ -40,8 +40,9 @@ app.post('/api/update-model', (req, res) => {
     }
 
     console.log('Data fetch complete, starting model training...');
+
     // Spawn Python process with unbuffered output (-u) for train
-    const trainProc = spawn('python', ['-u', trainScript], { shell: true });
+    const trainProc = spawn('python', ['-u', trainScript], { shell: true, cwd: __dirname });
     trainProc.stdout.pipe(process.stdout);
     trainProc.stderr.pipe(process.stderr);
 
