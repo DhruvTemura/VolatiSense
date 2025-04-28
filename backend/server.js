@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/models", modelRoutes);
-
+ 
 
 // 1) Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/market_risk_assessment', {
@@ -27,36 +27,55 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 const fetchScript = path.join(__dirname, 'dataset', 'fetch_latest_data.py');
 const trainScript = path.join(__dirname, 'model', 'train_update.py');
 
-// 4) POST /api/update-model with real-time streaming
+// POST /api/update-model with real-time streaming and log collection
 app.post('/api/update-model', (req, res) => {
   console.log('Starting data fetch...');
+  let logs = [];
+  
+  // Function to collect logs
+  const collectLog = (data) => {
+    const log = data.toString();
+    console.log(log);
+    logs.push(log);
+  };
 
   // Spawn Python process with unbuffered output (-u) for fetch
   const fetchProc = spawn('python', ['-u', fetchScript], { shell: true, cwd: __dirname });
-  fetchProc.stdout.pipe(process.stdout);
-  fetchProc.stderr.pipe(process.stderr);
+  fetchProc.stdout.on('data', collectLog);
+  fetchProc.stderr.on('data', collectLog);
 
   fetchProc.on('close', code => {
     if (code !== 0) {
       console.error(`Fetch script exited with code ${code}`);
-      return res.status(500).json({ error: 'Failed to fetch data' });
+      return res.status(500).json({ 
+        error: 'Failed to fetch data',
+        logs: logs.join('')
+      });
     }
 
     console.log('Data fetch complete, starting model training...');
+    logs.push('Data fetch complete, starting model training...\n');
 
     // Spawn Python process with unbuffered output (-u) for train
     const trainProc = spawn('python', ['-u', trainScript], { shell: true, cwd: __dirname });
-    trainProc.stdout.pipe(process.stdout);
-    trainProc.stderr.pipe(process.stderr);
+    trainProc.stdout.on('data', collectLog);
+    trainProc.stderr.on('data', collectLog);
 
     trainProc.on('close', code2 => {
       if (code2 !== 0) {
         console.error(`Train script exited with code ${code2}`);
-        return res.status(500).json({ error: 'Model training failed' });
+        return res.status(500).json({ 
+          error: 'Model training failed',
+          logs: logs.join('')
+        });
       }
 
       console.log('Model training complete.');
-      res.json({ message: 'Model updated successfully!' });
+      logs.push('Model training complete.\n');
+      res.json({ 
+        message: 'Model updated successfully!',
+        logs: logs.join('')
+      });
     });
   });
 });

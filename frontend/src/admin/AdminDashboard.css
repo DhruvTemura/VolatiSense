@@ -181,3 +181,44 @@
   tbody tr:hover {
     background-color: #f9fafb;
   }
+
+  /* Add these styles to your AdminDashboard.css file */
+
+.logs-container {
+  margin-top: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.logs-container h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.update-logs {
+  background-color: #f5f5f5;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 10px;
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #333;
+}
+
+.toggle-logs-btn {
+  background-color: #5e6472;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.toggle-logs-btn:hover {
+  background-color: #4a505e;
+}

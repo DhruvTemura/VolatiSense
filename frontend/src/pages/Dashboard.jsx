@@ -66,6 +66,7 @@ export default function Dashboard() {
   // Function to generate model stats for all tickers
   const generateAllStats = async () => {
     try {
+      setLoading(true);
       const response = await fetch('http://localhost:5000/api/models/generate-all', {
         method: 'POST',
         headers: {
@@ -79,14 +80,17 @@ export default function Dashboard() {
       
       const result = await response.json();
       console.log('Stats generation result:', result);
+      alert("Stats generated successfully! Click Analyze Risk again.");
       
-      // After generating stats, try analyzing again
+      // After generating stats, try analyzing again if we have a selected stock
       if (selectedStock) {
         setShowResults(true);
       }
     } catch (err) {
       console.error('Error generating stats:', err);
       setError('Could not generate model stats. Please try again or contact support.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,30 +100,48 @@ export default function Dashboard() {
     setLoading(true);
     setError(null);
     
+    console.log(`Fetching data for ${selectedStock}...`);
+    
     fetch(`http://localhost:5000/api/models/${selectedStock}`)
       .then(res => {
+        console.log(`Response status for ${selectedStock}:`, res.status);
         if (!res.ok) {
           if (res.status === 404) {
-            throw new Error(`No data available for ${selectedStock}. Try updating the model first.`);
+            throw new Error(`No data available for ${selectedStock}. Try generating stats first.`);
           }
-          throw new Error("Failed to load model data");
+          return res.json().then(data => {
+            throw new Error(data.error || data.message || "Failed to load model data");
+          }).catch(() => {
+            throw new Error("Failed to load model data");
+          });
         }
         return res.json();
       })
       .then(data => {
+        console.log("Model data received:", data);
+        // Check if we got valid data
+        if (!data) {
+          throw new Error("Empty response received");
+        }
+        
+        // Use data if available, or empty arrays as fallbacks
         setPriceHistory(data.priceHistory || []);
         setVolatilityData(data.volatilityData || []);
         setVarData(data.varData || []);
+        
+        // Set model statistics with proper type conversion
         setModelStats({
-          var95: data.var95,
-          var99: data.var99,
-          cvar: data.cvar,
-          riskLevel: data.riskLevel,
-          accuracy: data.accuracy
+          var95: typeof data.var95 === 'number' ? data.var95.toFixed(2) : data.var95,
+          var99: typeof data.var99 === 'number' ? data.var99.toFixed(2) : data.var99,
+          cvar: typeof data.cvar === 'number' ? data.cvar.toFixed(2) : data.cvar,
+          riskLevel: data.riskLevel || 'Unknown',
+          accuracy: typeof data.accuracy === 'number' ? data.accuracy : null
         });
+        
         setLoading(false);
       })
       .catch(err => {
+        console.error("Error loading model data:", err);
         setError(err.message);
         setLoading(false);
       });
@@ -128,11 +150,17 @@ export default function Dashboard() {
   const handleSelectChange = e => {
     setSelectedStock(e.target.value);
     setShowResults(false);
+    setError(null);
   };
 
   const analyzeRisk = () => {
     if (!selectedStock) return alert("Please select a stock first");
     setShowResults(true);
+  };
+
+  // Function to check if charts have data
+  const hasChartData = (data) => {
+    return Array.isArray(data) && data.length > 0;
   };
 
   return (
@@ -171,8 +199,8 @@ export default function Dashboard() {
                 </option>
               ))}
             </select>
-            <button className="primary-button" onClick={analyzeRisk}>
-              Analyze Risk
+            <button className="primary-button" onClick={analyzeRisk} disabled={loading || !selectedStock}>
+              {loading ? 'Loading...' : 'Analyze Risk'}
             </button>
           </div>
         </div>
@@ -182,8 +210,8 @@ export default function Dashboard() {
         {error && (
           <div className="error-card">
             <p className="error">Error: {error}</p>
-            <button className="primary-button" onClick={generateAllStats}>
-              Generate Missing Data
+            <button className="primary-button" onClick={generateAllStats} disabled={loading}>
+              {loading ? 'Generating...' : 'Generate Missing Data'}
             </button>
           </div>
         )}
@@ -221,30 +249,38 @@ export default function Dashboard() {
               <div id="price-trend" className="card">
                 <h3 className="chart-title">Historical Price Trend</h3>
                 <div className="chart-container">
-                  <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={priceHistory}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="price" stroke="#3b82f6" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  {hasChartData(priceHistory) ? (
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={priceHistory}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="price" stroke="#3b82f6" strokeWidth={2} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="no-data-message">No price history data available</p>
+                  )}
                 </div>
               </div>
 
               <div className="card">
                 <h3 className="chart-title">Rolling Volatility (30 Days)</h3>
                 <div className="chart-container">
-                  <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={volatilityData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="volatility" stroke="#ef4444" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  {hasChartData(volatilityData) ? (
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={volatilityData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="volatility" stroke="#ef4444" strokeWidth={2} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="no-data-message">No volatility data available</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -252,16 +288,20 @@ export default function Dashboard() {
             <div id="var-distribution" className="card">
               <h3 className="chart-title">Value at Risk Distribution</h3>
               <div className="chart-container">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={varData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="loss" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="probability" name="Loss Probability" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
+                {hasChartData(varData) ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={varData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="loss" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="probability" name="Loss Probability" fill="#8884d8" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="no-data-message">No VaR distribution data available</p>
+                )}
               </div>
             </div>
 
@@ -274,6 +314,8 @@ export default function Dashboard() {
                 <p className="log-entry">VaR95: ₹{var95}</p>
                 <p className="log-entry">VaR99: ₹{var99}</p>
                 <p className="log-entry">CVaR: ₹{cvar}</p>
+                <p className="log-entry">Risk Level: {riskLevel}</p>
+                <p className="log-entry">Last Updated: {new Date().toLocaleDateString()}</p>
               </div>
             </div>
           </>

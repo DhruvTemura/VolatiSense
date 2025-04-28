@@ -56,16 +56,20 @@ exports.getModelStats = async (req, res) => {
   try {
     const { ticker } = req.params;
     
-    // Try to get data from MongoDB
+    // Try to get data from MongoDB with more detailed logging
     let doc = await ModelStat.findOne({ ticker });
+    console.log(`Looking for ticker: ${ticker}, found: ${doc ? 'yes' : 'no'}`);
     
     // If no document exists but model exists, create dummy stats
     if (!doc) {
       const modelExists = await checkModelExists(ticker);
+      console.log(`Model files exist for ${ticker}: ${modelExists}`);
+      
       if (modelExists) {
         // Create default stats
         const defaultStats = generateDefaultModelStats(ticker);
         doc = await ModelStat.create(defaultStats);
+        console.log(`Created new stats for ${ticker}`);
       } else {
         // No model and no stats
         return res.status(404).json({ 
@@ -74,10 +78,14 @@ exports.getModelStats = async (req, res) => {
       }
     }
     
+    // Add a timestamp to help debug if data is stale
+    doc = doc.toJSON ? doc.toJSON() : doc;
+    doc._fetchTime = new Date().toISOString();
+    
     res.json(doc);
   } catch (err) {
     console.error('Error fetching model stats:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error', details: err.message });
   }
 };
 

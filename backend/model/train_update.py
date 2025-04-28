@@ -78,6 +78,7 @@ def label_risk(data):
 
 
 # Fixed function to save model statistics to MongoDB
+# Fixed function to save model statistics to MongoDB
 def save_model_stats(ticker, model, X_test, y_test, start_date):
     print(f"[INFO] Saving model stats for {ticker} to MongoDB")
     
@@ -88,7 +89,7 @@ def save_model_stats(ticker, model, X_test, y_test, start_date):
     
     # Calculate accuracy
     y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred) * 100
+    accuracy = float(accuracy_score(y_test, y_pred) * 100)  # Explicitly convert to float
     
     # Get recent data for charts (last year)
     end_date = datetime.today().strftime('%Y-%m-%d')
@@ -101,40 +102,71 @@ def save_model_stats(ticker, model, X_test, y_test, start_date):
         returns = data['Close'].pct_change().dropna()
         
         # Calculate VaR metrics (negative values represent losses)
-        var95 = returns.quantile(0.05) * data['Close'].iloc[-1]
-        var99 = returns.quantile(0.01) * data['Close'].iloc[-1]
-        
-        # Conditional VaR (Expected Shortfall)
-        cvar = returns[returns <= returns.quantile(0.05)].mean() * data['Close'].iloc[-1]
+        # Ensure each value is explicitly converted to float
+        try:
+            var95 = float(returns.quantile(0.05)) * float(data['Close'].iloc[-1])
+            var99 = float(returns.quantile(0.01)) * float(data['Close'].iloc[-1])
+        except Exception as e:
+            print(f"[WARNING] Error calculating VaR: {e}, using fallback")
+            var95 = float(min(returns) * data['Close'].iloc[-1])
+            var99 = float(min(returns) * 1.5 * data['Close'].iloc[-1])
+
+        # Conditional VaR with additional error handling
+        try:
+            cvar_returns = returns[returns <= returns.quantile(0.05)]
+            if not cvar_returns.empty:
+                cvar = float(cvar_returns.mean()) * float(data['Close'].iloc[-1])
+            else:
+                cvar = float(returns.min()) * float(data['Close'].iloc[-1])
+        except Exception as e:
+            print(f"[WARNING] Error calculating CVaR: {e}, using fallback")
+            cvar = float(min(returns) * 2 * data['Close'].iloc[-1])
         
         # Create price history for chart (last 30 days)
         price_history = []
         for idx, row in data.iloc[-30:].iterrows():
-            # Fix: Convert datetime index to string properly
-            price_history.append({
-                "date": idx.strftime('%Y-%m-%d'),
-                "price": float(row['Close'])
-            })
+            try:
+                date_str = idx.strftime('%Y-%m-%d') if hasattr(idx, 'strftime') else str(idx).split(' ')[0]
+                price_history.append({
+                    "date": date_str,
+                    "price": float(row['Close'])
+                })
+            except Exception as e:
+                print(f"[WARNING] Error processing price history item: {e}")
         
-        # Calculate rolling volatility
-        volatility = returns.rolling(window=30).std().dropna()
-        volatility_data = []
-        for idx, vol in volatility.iloc[-30:].items():
-            # Fix: Convert datetime index to string properly
-            volatility_data.append({
-                "date": idx.strftime('%Y-%m-%d'),
-                "volatility": float(vol)
-            })
+        # Calculate rolling volatility with improved error handling
+        try:
+            volatility = returns.rolling(window=30).std().dropna()
+            volatility_data = []
+            for idx, vol in volatility.iloc[-30:].items():
+                date_str = idx.strftime('%Y-%m-%d') if hasattr(idx, 'strftime') else str(idx).split(' ')[0]
+                volatility_data.append({
+                    "date": date_str,
+                    "volatility": float(vol)
+                })
+        except Exception as e:
+            print(f"[WARNING] Error calculating volatility data: {e}")
+            volatility_data = []
         
-        # Create VaR distribution data
+        # Create VaR distribution data with additional error handling
         var_data = []
-        # Create 20 equally spaced loss points from 0 to 2*VAR99
-        loss_range = np.linspace(0, abs(var99) * 2, 20)
-        for loss in loss_range:
-            var_data.append({
-                "loss": f"{loss*100:.1f}%",
-                "probability": float((returns <= -loss).mean())
-            })
+        try:
+            # Create 20 equally spaced loss points from 0 to 2*VAR99
+            loss_range = np.linspace(0, abs(float(var99)) * 2, 20)
+            for loss in loss_range:
+                prob = float((returns <= -loss).mean())
+                var_data.append({
+                    "loss": f"{loss*100:.1f}%",
+                    "probability": prob
+                })
+        except Exception as e:
+            print(f"[WARNING] Error calculating VaR distribution: {e}")
+            # Fallback dummy data
+            for i in range(20):
+                var_data.append({
+                    "loss": f"{i*0.5:.1f}%",
+                    "probability": float(max(0.1 - i*0.005, 0.001))
+                })
         
         # Determine risk level based on 5% VaR
         if var95 < -0.03:  # More than 3% loss at 95% confidence
@@ -147,9 +179,9 @@ def save_model_stats(ticker, model, X_test, y_test, start_date):
         # Create model stats document
         model_stats = {
             "ticker": ticker,
-            "var95": abs(float(var95 * data['Close'].iloc[-1])),  # Convert to absolute rupee amount
-            "var99": abs(float(var99 * data['Close'].iloc[-1])),
-            "cvar": abs(float(cvar * data['Close'].iloc[-1])),
+            "var95": abs(float(var95)),  # Convert to absolute value
+            "var99": abs(float(var99)),
+            "cvar": abs(float(cvar)),
             "riskLevel": risk_level,
             "accuracy": float(accuracy),
             "priceHistory": price_history,
@@ -174,7 +206,6 @@ def save_model_stats(ticker, model, X_test, y_test, start_date):
             
     except Exception as e:
         print(f"[ERROR] Failed to save stats for {ticker}: {e}")
-
 
 # Training Functions
 def train_baseline_model(start, end):
