@@ -98,19 +98,7 @@ export default function Signup() {
                 {errors.name && <span className="error-text">{errors.name}</span>}
               </div>
               
-              <div className="form-group">
-                <label htmlFor="email" className="form-label">Email Address</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className="form-input"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Enter your email"
-                />
-                {errors.email && <span className="error-text">{errors.email}</span>}
-              </div>
+              
               <div className="form-group">
             <label htmlFor="email" className="form-label">Email Address</label>
             <input
