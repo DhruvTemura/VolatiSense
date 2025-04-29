@@ -686,3 +686,151 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* Add these styles to your Landing.css file */
+
+/* Market Visualization Component Styles */
+.market-visualization {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.chart-header {
+  padding: 1rem;
+  background-color: rgba(59, 130, 246, 0.05);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chart-title h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.activity-icon {
+  color: #3b82f6;
+  width: 18px;
+  height: 18px;
+}
+
+.live-indicator span {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.chart-container {
+  flex: 1;
+  padding: 1rem;
+}
+
+.chart-footer {
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-top: 1px solid #f3f4f6;
+}
+
+.risk-prediction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prediction-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-icon {
+  width: 18px;
+  height: 18px;
+  color: #4b5563;
+}
+
+.prediction-label span {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.risk-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+.trend-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.risk-indicator span {
+  font-weight: 500;
+}
+
+.metrics-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.metric-card {
+  background-color: rgba(59, 130, 246, 0.05);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.metric-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* Adjustments for hero section */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-content {
+  flex: 1;
+  padding-right: 2rem;
+}
+
+.hero-image {
+  flex: 1;
+  max-width: 550px;
+}
