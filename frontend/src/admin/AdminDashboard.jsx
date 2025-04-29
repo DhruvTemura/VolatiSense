@@ -5,32 +5,37 @@ import './AdminDashboard.css';
 const AdminDashboard = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [lastUpdate, setLastUpdate] = useState('Never');
+  const [logs, setLogs] = useState(''); // New state for logs
   const navigate = useNavigate();
 
   const adminUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
-  const updateModel = () => {
+  const updateModel = async () => {
     setIsUpdating(true);
-  
-    fetch('http://localhost:5000/api/update-model', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      setIsUpdating(false);
+    setLogs(''); // clear previous logs
+
+    try {
+      const response = await fetch('http://localhost:5000/api/update-model', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) throw new Error(result.error || 'Update failed');
+
       setLastUpdate(new Date().toLocaleString());
-      alert(data.message || 'Model updated successfully!');
-    })
-    .catch(err => {
+      setLogs(result.logs || ''); // capture logs
+      alert(result.message || 'Model updated successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Error updating model: ' + err.message);
+    } finally {
       setIsUpdating(false);
-      console.error('Error updating model:', err);
-      alert('Update failed. Check backend logs.');
-    });
+    }
   };
-  
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
@@ -59,7 +64,7 @@ const AdminDashboard = () => {
 
         <div className="main-content">
           <h1>Model Management</h1>
-          
+
           <div className="model-card">
             <h2>XGBoost Risk Classifier</h2>
             <div className="model-info">
@@ -68,10 +73,10 @@ const AdminDashboard = () => {
               <p><strong>Accuracy:</strong> 87.5%</p>
               <p><strong>F1 Score:</strong> 0.83</p>
             </div>
-            
+
             <div className="model-actions">
-              <button 
-                className={`update-btn ${isUpdating ? 'updating' : ''}`} 
+              <button
+                className={`update-btn ${isUpdating ? 'updating' : ''}`}
                 onClick={updateModel}
                 disabled={isUpdating}
               >
@@ -79,8 +84,15 @@ const AdminDashboard = () => {
               </button>
               <button className="view-btn">View Performance</button>
             </div>
+
+            {/* Display logs when available */}
+            {logs && (
+              <pre className="update-logs">
+                {logs}
+              </pre>
+            )}
           </div>
-          
+
           <div className="model-history">
             <h3>Update History</h3>
             <table>
