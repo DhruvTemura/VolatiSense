@@ -82,3 +82,92 @@ export default function Landing() {
         </div>
       </section>
 
+ {/* Testimonials */}
+ <section className="testimonials-section" id="testimonials">
+        <h2 className="section-title">What Our Users Say</h2>
+        <div className="testimonials-container">
+          <div className="testimonial-card">
+            <div className="quote-icon">"</div>
+            <p className="testimonial-text">VolatiSense has transformed how I approach risk management. The AI predictions have been remarkably accurate during recent market fluctuations.</p>
+            <div className="testimonial-author">
+              <p className="author-name">Kartikeya Attrey</p>
+              <p className="author-title">Portfolio Manager, Mumbai</p>
+            </div>
+          </div>
+          <div className="testimonial-card">
+            <div className="quote-icon">"</div>
+            <p className="testimonial-text">The Value at Risk calculations and visual representations make it easy to explain complex risk metrics to my clients. An essential tool for any financial advisor.</p>
+            <div className="testimonial-author">
+              <p className="author-name">Hardik Batra</p>
+              <p className="author-title">Financial Advisor, Bangalore</p>
+            </div>
+          </div>
+          <div className="testimonial-card">
+            <div className="quote-icon">"</div>
+            <p className="testimonial-text">As a retail investor, I finally feel equipped with professional-grade risk analysis tools. The interface is intuitive and the insights are invaluable.</p>
+            <div className="testimonial-author">
+              <p className="author-name">Krishan Rathi</p>
+              <p className="author-title">Retail Investor, Delhi</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="cta-section">
+        <div className="cta-content">
+          <h2>Ready to Manage Market Risk Intelligently?</h2>
+          <p>Join thousands of investors using VolatiSense to navigate market volatility</p>
+          <div className="cta-buttons">
+            <Link to="/signup" className="btn-primary btn-large">Create Free Account</Link>
+            <Link to="/login" className="btn-secondary">Already a User? Log In</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="landing-footer">
+        <div className="footer-content">
+          <div className="footer-logo">
+            <h3>VolatiSense</h3>
+            <p>AI-Powered Market Risk Assessment</p>
+          </div>
+          <div className="footer-links">
+            <div className="footer-column">
+              <h4>Product</h4>
+              <a href="#features">Features</a>
+              <a href="#benefits">Benefits</a>
+              <a href="#pricing">Pricing</a>
+            </div>
+            <div className="footer-column">
+              <h4>Resources</h4>
+              <a href="#blog">Blog</a>
+              <a href="#documentation">Documentation</a>
+              <a href="#api">API</a>
+            </div>
+            <div className="footer-column">
+              <h4>Company</h4>
+              <a href="#about">About Us</a>
+              <a href="#careers">Careers</a>
+              <a href="#contact">Contact</a>
+            </div>
+            <div className="footer-column">
+              <h4>Legal</h4>
+              <a href="#terms">Terms of Service</a>
+              <a href="#privacy">Privacy Policy</a>
+              <a href="#cookies">Cookie Policy</a>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>©️ 2025 VolatiSense. All rights reserved.</p>
+          <div className="social-links">
+            <a href="#twitter" className="social-icon twitter-icon"></a>
+            <a href="#linkedin" className="social-icon linkedin-icon"></a>
+            <a href="#github" className="social-icon github-icon"></a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
