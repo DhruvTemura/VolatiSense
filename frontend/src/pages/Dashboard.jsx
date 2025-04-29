@@ -61,7 +61,8 @@ export default function Dashboard() {
     { value: "HDFCLIFE.NS",    label: "HDFC Life Insurance Co. Ltd." },
     { value: "INDUSINDBK.NS",  label: "IndusInd Bank Ltd." },
     { value: "DIVISLAB.NS",    label: "Divi's Laboratories Ltd." },
-    { value: "AAPL",    label: "Apple Inc." }
+    { value: "AAPL",    label: "Apple Inc." },
+    { value: "SMSN.IL",    label: "Samsung Electronics Co., Ltd." }
   ];
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
