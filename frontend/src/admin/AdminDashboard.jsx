@@ -5,17 +5,20 @@ import './AdminDashboard.css';
 const AdminDashboard = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [lastUpdate, setLastUpdate] = useState('Never');
-  const [logs, setLogs] = useState(''); // New state for logs
+  const [logs, setLogs] = useState(''); 
+  const [showLogs, setShowLogs] = useState(false);
   const navigate = useNavigate();
 
   const adminUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const updateModel = async () => {
     setIsUpdating(true);
     setLogs(''); // clear previous logs
+    setShowLogs(true); // show logs area
 
     try {
-      const response = await fetch('http://localhost:5000/api/update-model', {
+      const response = await fetch(`${API_URL}/api/update-model`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,6 +43,10 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
     navigate('/login');
+  };
+
+  const toggleLogs = () => {
+    setShowLogs(!showLogs);
   };
 
   return (
@@ -83,13 +90,19 @@ const AdminDashboard = () => {
                 {isUpdating ? 'Updating...' : 'Update Model'}
               </button>
               <button className="view-btn">View Performance</button>
+              {logs && <button className="toggle-logs-btn" onClick={toggleLogs}>
+                {showLogs ? 'Hide Logs' : 'Show Logs'}
+              </button>}
             </div>
 
             {/* Display logs when available */}
-            {logs && (
-              <pre className="update-logs">
-                {logs}
-              </pre>
+            {showLogs && logs && (
+              <div className="logs-container">
+                <h3>Update Logs</h3>
+                <pre className="update-logs">
+                  {logs}
+                </pre>
+              </div>
             )}
           </div>
 
@@ -106,6 +119,12 @@ const AdminDashboard = () => {
               </thead>
               <tbody>
                 <tr>
+                  <td>{new Date().toLocaleDateString()}</td>
+                  <td>{new Date().toLocaleTimeString()}</td>
+                  <td>Running</td>
+                  <td>-</td>
+                </tr>
+                <tr>
                   <td>2025-04-20</td>
                   <td>10:23 AM</td>
                   <td>Success</td>
@@ -116,12 +135,6 @@ const AdminDashboard = () => {
                   <td>09:10 AM</td>
                   <td>Success</td>
                   <td>-0.3% F1 Score</td>
-                </tr>
-                <tr>
-                  <td>2025-04-10</td>
-                  <td>11:45 AM</td>
-                  <td>Success</td>
-                  <td>+0.8% F1 Score</td>
                 </tr>
               </tbody>
             </table>
