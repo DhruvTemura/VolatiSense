@@ -10,6 +10,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const adminUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const updateModel = async () => {
     setIsUpdating(true);
@@ -17,7 +18,7 @@ const AdminDashboard = () => {
     setShowLogs(true); // show logs area
 
     try {
-      const response = await fetch('http://localhost:5000/api/update-model', {
+      const response = await fetch(`${API_URL}/api/update-model`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

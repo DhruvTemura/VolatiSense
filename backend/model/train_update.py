@@ -83,7 +83,7 @@ def save_model_stats(ticker, model, X_test, y_test, start_date):
     print(f"[INFO] Saving model stats for {ticker} to MongoDB")
     
     # Connect to MongoDB
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    client = pymongo.MongoClient("mongodb://mongo:27017/")
     db = client["market_risk_assessment"]
     stats_collection = db["model_stats"]
     

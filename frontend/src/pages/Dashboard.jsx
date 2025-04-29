@@ -63,11 +63,13 @@ export default function Dashboard() {
     { value: "DIVISLAB.NS",    label: "Divi's Laboratories Ltd." }
   ];
 
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
   // Function to generate model stats for all tickers
   const generateAllStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/models/generate-all', {
+      const response = await fetch(`${API_URL}/api/models/${selectedStock}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

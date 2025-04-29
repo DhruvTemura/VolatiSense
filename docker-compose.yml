@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  frontend:
+    platform: linux/amd64
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    working_dir: /app
+    networks:
+      - app-net
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - shared-data:/app/shared
+    command: npm start
+    depends_on:
+      - backend
+
+  backend:
+    platform: linux/amd64
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    working_dir: /app
+    networks:
+      - app-net
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - shared-data:/app/shared
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/myDatabase
+    command: npm start
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    networks:
+      - app-net
+    volumes:
+      - shared-data:/data/db
+
+volumes:
+  shared-data:
+
+networks:
+  app-net:
+    driver: bridge

@@ -9,7 +9,7 @@ import time
 from tqdm import tqdm
 
 # MongoDB setup
-client = MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient("mongodb://mongo:27017/")
 db = client["market_risk_assessment"]
 sensex_data_collection = db["sensex_data"]
 
