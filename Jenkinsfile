@@ -16,37 +16,37 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 echo 'Building Docker images for frontend, backend, and mongo...'
-                sh '''
-                    docker-compose down --remove-orphans || true
+                bat """
+                    docker-compose down --remove-orphans || exit /b 0
                     docker-compose build --no-cache
-                '''
+                """
             }
         }
 
         stage('Run Docker Containers') {
             steps {
                 echo 'Starting containers with docker-compose...'
-                sh 'docker-compose up -d'
+                bat 'docker-compose up -d'
             }
         }
 
         stage('Verify Running Containers') {
             steps {
                 echo 'Verifying containers are up and running...'
-                sh 'docker-compose ps'
+                bat 'docker-compose ps'
             }
         }
 
         stage('Show Docker Logs') {
             steps {
                 echo 'Showing recent logs from backend and frontend...'
-                sh '''
-                    echo "===== Backend Logs ====="
-                    docker-compose logs --tail=50 backend || true
+                bat """
+                    echo ===== Backend Logs =====
+                    docker-compose logs --tail=50 backend || exit /b 0
 
-                    echo "===== Frontend Logs ====="
-                    docker-compose logs --tail=50 frontend || true
-                '''
+                    echo ===== Frontend Logs =====
+                    docker-compose logs --tail=50 frontend || exit /b 0
+                """
             }
         }
     }
@@ -54,14 +54,14 @@ pipeline {
     post {
         failure {
             echo 'Pipeline failed. Bringing down containers...'
-            sh 'docker-compose down'
+            bat 'docker-compose down'
         }
         success {
             echo 'Pipeline executed successfully!'
         }
         always {
             echo 'Pruning unused Docker images...'
-            sh 'docker image prune -f || true'
+            bat 'docker image prune -f || exit /b 0'
         }
     }
 }
