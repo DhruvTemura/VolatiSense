@@ -93,7 +93,7 @@ exports.getModelStats = async (req, res) => {
 exports.generateAllModelStats = async (req, res) => {
   try {
     const tickers = [
-      "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "HINDUNILVR.NS", "BHARTIARTL.NS",
+      "RELIANCE.NS","NIITLTD.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "HINDUNILVR.NS", "BHARTIARTL.NS",
       "KOTAKBANK.NS", "ITC.NS", "AXISBANK.NS", "MARUTI.NS", "BAJFINANCE.NS", "BAJAJFINSV.NS",
       "HCLTECH.NS", "LUPIN.NS", "ULTRACEMCO.NS", "NTPC.NS", "WIPRO.NS", "M&M.NS", "POWERGRID.NS",
       "SBIN.NS", "ASIANPAINT.NS", "DRREDDY.NS", "BAJAJ-AUTO.NS", "SUNPHARMA.NS", "JSWSTEEL.NS",

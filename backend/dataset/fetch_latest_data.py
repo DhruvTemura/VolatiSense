@@ -15,7 +15,7 @@ sensex_data_collection = db["sensex_data"]
 
 # List of Sensex companies (tickers)
 sensex_companies = [
-    "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "HINDUNILVR.NS", "BHARTIARTL.NS",
+    "RELIANCE.NS","NIITLTD.NS" ,"TCS.NS", "HDFCBANK.NS", "INFY.NS", "HINDUNILVR.NS", "BHARTIARTL.NS",
     "KOTAKBANK.NS", "ITC.NS", "AXISBANK.NS", "MARUTI.NS", "BAJFINANCE.NS", "BAJAJFINSV.NS",
     "HCLTECH.NS", "LUPIN.NS", "ULTRACEMCO.NS", "NTPC.NS", "WIPRO.NS", "M&M.NS", "POWERGRID.NS",
     "SBIN.NS", "ASIANPAINT.NS", "DRREDDY.NS", "BAJAJ-AUTO.NS", "SUNPHARMA.NS", "JSWSTEEL.NS",

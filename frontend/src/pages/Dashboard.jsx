@@ -32,6 +32,7 @@ export default function Dashboard() {
 
   const stockOptions = [
     { value: "RELIANCE.NS",    label: "Reliance Industries Ltd." },
+    { value: "NIITLTD.NS",    label: "NIIT Limited" },
     { value: "TCS.NS",         label: "Tata Consultancy Services Ltd." },
     { value: "HDFCBANK.NS",    label: "HDFC Bank Ltd." },
     { value: "INFY.NS",        label: "Infosys Ltd." },
