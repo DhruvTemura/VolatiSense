@@ -8,17 +8,16 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                echo 'Checking out latest code from main branch...'
+                echo 'Checking out latest code...'
                 git branch: 'main', url: 'https://github.com/DhruvTemura/VolatiSense.git'
             }
         }
 
         stage('Build Docker Images') {
             steps {
-                echo 'Building Docker images...'
+                echo 'Building Docker images for frontend, backend, and mongo...'
                 sh '''
-                    docker-compose down --remove-orphans
-                    docker-compose pull || true
+                    docker-compose down --remove-orphans || true
                     docker-compose build --no-cache
                 '''
             }
@@ -26,36 +25,42 @@ pipeline {
 
         stage('Run Docker Containers') {
             steps {
-                echo 'Starting Docker containers...'
+                echo 'Starting containers with docker-compose...'
                 sh 'docker-compose up -d'
             }
         }
 
-        stage('Show Running Containers') {
+        stage('Verify Running Containers') {
             steps {
-                echo 'Currently running containers:'
-                sh 'docker ps'
+                echo 'Verifying containers are up and running...'
+                sh 'docker-compose ps'
             }
         }
 
         stage('Show Docker Logs') {
             steps {
-                echo 'Fetching Docker logs...'
-                sh 'docker-compose logs --tail=100'
+                echo 'Showing recent logs from backend and frontend...'
+                sh '''
+                    echo "===== Backend Logs ====="
+                    docker-compose logs --tail=50 backend || true
+
+                    echo "===== Frontend Logs ====="
+                    docker-compose logs --tail=50 frontend || true
+                '''
             }
         }
     }
 
     post {
         failure {
-            echo 'Pipeline failed. Cleaning up Docker containers...'
+            echo 'Pipeline failed. Bringing down containers...'
             sh 'docker-compose down'
         }
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Pipeline executed successfully!'
         }
         always {
-            echo 'Cleaning up dangling images (optional)...'
+            echo 'Pruning unused Docker images...'
             sh 'docker image prune -f || true'
         }
     }
